@@ -59,4 +59,12 @@ public abstract class ProximityScanner<T> : IObservable, IDisposable where T : O
             Source.onNext(new ObjectDetected(objectId, type));
         }
     }
+    
+    public virtual void Dispose()
+    {
+        if (this.Source != null)
+        {
+            this.Source.Dispose();
+        }
+    }
 }
