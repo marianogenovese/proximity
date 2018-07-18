@@ -40,12 +40,13 @@ public abstract class EstimoteProximityScanner : ProximityScanner<ObjectDetected
         }
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         if (proximityZone != null)
         {
             proximityZone.Dispose();
-            Source.Dispose();
         }
+        
+        base.Dispose();
     }
 }
