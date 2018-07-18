@@ -42,8 +42,9 @@ public abstract class EstimoteProximityScanner : ProximityScanner<ObjectDetected
                                         this.OnObjectDetected(EventType.OnChange, ProximityContext[0].Id);
                                     })
                                     .create();
-                                    
-            this.proximityHandler = estimoteProximityObserver.addProximityZone(this.proximityZone);
+
+            // Agrego la zona creada a estimote y comienzo a observar.
+            this.proximityHandler = estimoteProximityObserver.addProximityZone(this.proximityZone).Start();
         }
         
         return Source.Subscribe(observer);
@@ -65,7 +66,7 @@ public abstract class EstimoteProximityScanner : ProximityScanner<ObjectDetected
     }
 
     public override void Dispose()
-    {        
+    {
         if (proximityHandler != null)
         {
             proximityHandler.Stop();
