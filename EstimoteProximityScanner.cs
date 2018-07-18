@@ -10,6 +10,7 @@ public abstract class EstimoteProximityScanner : ProximityScanner<ObjectDetected
     private readonly ProximityObserver estimoteProximityObserver;
     
     ProximityZone proximityZone;
+    ProximityObserver.Handler proximityHandler;
     IObservable<ObjectDetected> CustomObservable; //crear un observable basado de un subject
 
     public EstimoteProximityScanner(ProximityObserver estimoteProximityObserver, string tag, Guid id, double distance) : base(id, distance)
@@ -41,6 +42,8 @@ public abstract class EstimoteProximityScanner : ProximityScanner<ObjectDetected
                                         this.OnObjectDetected(EventType.OnChange, ProximityContext[0].Id);
                                     })
                                     .create();
+                                    
+            this.proximityHandler = estimoteProximityObserver.addProximityZone(this.proximityZone);
         }
         
         return Source.Subscribe(observer);
@@ -62,7 +65,13 @@ public abstract class EstimoteProximityScanner : ProximityScanner<ObjectDetected
     }
 
     public override void Dispose()
-    {
+    {        
+        if (proximityHandler != null)
+        {
+            proximityHandler.Stop();
+            proximityHandler.Dispose();
+        }
+        
         if (proximityZone != null)
         {
             proximityZone.Dispose();
