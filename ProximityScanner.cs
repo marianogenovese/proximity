@@ -1,3 +1,8 @@
+//
+// Clase base de todas las clases que deseen detectar proximidad y tengan objetos relacionados
+// que desean escanear. Esta clase es Observable para poder recibir eventos via patron observador/observable
+// La proximidad necesita: un Id y una distancia como mínimo.
+//
 public abstract class ProximityScanner<T> : IObservable, IDisposable where T : ObjectDetected
 {
     private readonly Guid id;
@@ -17,12 +22,14 @@ public abstract class ProximityScanner<T> : IObservable, IDisposable where T : O
         }
     }
 
+    // Todas las clases que hereden de esta, deben declarar cuales son
+    // sus objetos relacionados
     public abstract Guid[] ReleatedObjects
     {
         get;
     }
 
-    public abstract Observable<T> Source
+    protected abstract Observable<T> Source
     {
         get;
     }
