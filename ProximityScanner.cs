@@ -29,6 +29,8 @@ public abstract class ProximityScanner<T> : IObservable, IDisposable where T : O
         get;
     }
 
+    // Source sirve como fuente de eventos privado, a Source es donde se van a publicar eventos,
+    // y los observadores se van a subscribir.
     protected abstract Observable<T> Source
     {
         get;
@@ -42,16 +44,21 @@ public abstract class ProximityScanner<T> : IObservable, IDisposable where T : O
         }
     }
     
+    // Este es el metodo que van a llamar los observadores,
+    // por lo que en lugar de suscribirse a ProximityScanner, se suscriben a Source
+    // que es la fuente de eventos.
     public virtual IDisposable Subscribe(IObserver<T> observer) 
     {
         return Source.Subscribe(observer);
     }
 
+    // Valida que el objeto detectado, pertenezca a los objetos relacionados
     protected virtual bool Validate(EventType type, Guid objectId)
     {
         return this.ReleatedObjects.any(objectId);
     }
 
+    // Ayuda para publicar eventos de objetos detectados a la fuente de eventos
     protected virtual void OnObjectDetected(EventType type, Guid objectId)
     {
         if(Validate(type, objectId))
@@ -60,10 +67,13 @@ public abstract class ProximityScanner<T> : IObservable, IDisposable where T : O
         }
     }
     
+    // Libera recursos
     public virtual void Dispose()
     {
         if (this.Source != null)
         {
+            // Al hacer esto, todos los observadores asociados a la fuente
+            // terminan de observar.
             this.Source.Dispose();
         }
     }
