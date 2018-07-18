@@ -1,3 +1,9 @@
+//
+// Esta clase es responsable de detectar sectores dentro de una implementación.
+// por lo que usa la clase BeaconScanner para detectar un grupo de beacons asociados a un sector.
+// Finalmente, si se deben escanear multiples sectores se hacen un solo observable via operador Merge,
+// que permite unir observables de BeaconScanner.
+//
 public class SectorScanner :  ProximityScanner<ObjectDetected>
 {
     private readonly Guid[] releatedObjects;
@@ -44,14 +50,9 @@ public class SectorScanner :  ProximityScanner<ObjectDetected>
         }
     }
 
-    public void Dispose()
-    {
-        if (this.customObservable != null)
-        {
-            customObservable.Dispose();
-        }
-    }
-
+    // Sobreescribo el metodo porque solo la primera vez que un observador se suscriba,
+    // debo crear la BeaconScanner(s) asociados al sector y unirlo de ser el caso para observar
+    // varios sectores de una sola vez.
     protected override IDisposable Subscribe(IObserver<ObjectDetected> observer)
     {
         if (sectorScanners == null)
@@ -59,23 +60,16 @@ public class SectorScanner :  ProximityScanner<ObjectDetected>
             List<BeaconScanner> scanners = new List<BeaconScanner>();
             foreach(Sector sector in this.implementation.Sectors)
             {
-                scanners.Add(new BeaconScanner(this.estimoteProximityObserver, "CustomAuparAzone", sector))
-            }
-            
-            BeaconScanner[] beconScanners = scanners.ToArray();
-
-            foreach(BeaconScanner scanner in beconScanners)
-            {
                 if (beaconsInSectorDetectedObservable == null)
                 {
-                    beaconsInSectorDetectedObservable = scanner;
+                    beaconsInSectorDetectedObservable = new BeaconScanner(this.estimoteProximityObserver, "CustomAuparAzone", sector);
                 }
                 else
-                {                    
-                    beaconsInSectorDetectedObservable = beaconsInSectorDetectedObservable.Merge(scanner);
+                {
+                    beaconsInSectorDetectedObservable = beaconsInSectorDetectedObservable.Merge(new BeaconScanner(this.estimoteProximityObserver, "CustomAuparAzone", sector));
                 }
             }
-
+            
             beaconsInSectorDetectedObservable.Subscribe((objectDetected) =>
             {
                 this.OnObjectDetected(objectDetected.Type, objectDetected.Id);
@@ -84,3 +78,14 @@ public class SectorScanner :  ProximityScanner<ObjectDetected>
         
         return Source.Subscribe(observer);
     }
+    
+    public override void Dispose()
+    {
+        if (beaconsInSectorDetectedObservable != null)
+        {
+            beaconsInSectorDetectedObservable.Dispose();
+        }
+        
+        base.Dispose();
+    }
+}
