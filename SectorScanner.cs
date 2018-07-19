@@ -11,6 +11,7 @@ public class SectorScanner :  ProximityScanner<ObjectDetected>
     private readonly Implementation implementation;
     private readonly ProximityObserver estimoteProximityObserver;
     private IObservable<ObjectDetected> beaconsInSectorDetectedObservable;
+    private IDisposable sectorObserver;
 
     public SectorScanner(ProximityObserver estimoteProximityObserver, Implementation implementation) : base(implementation.Id, 0)
     {
@@ -70,7 +71,7 @@ public class SectorScanner :  ProximityScanner<ObjectDetected>
                 }
             }
             
-            beaconsInSectorDetectedObservable.Subscribe((objectDetected) =>
+            this.sectorObserver = beaconsInSectorDetectedObservable.Subscribe((objectDetected) =>
             {
                 this.OnObjectDetected(objectDetected);
             });
@@ -86,6 +87,9 @@ public class SectorScanner :  ProximityScanner<ObjectDetected>
             beaconsInSectorDetectedObservable.Dispose();
         }
         
-        base.Dispose();
+        if (sectorObserver != null)
+        {
+            sectorObserver.Dispose();
+        }
     }
 }
