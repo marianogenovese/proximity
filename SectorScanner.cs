@@ -72,7 +72,7 @@ public class SectorScanner :  ProximityScanner<ObjectDetected>
             
             beaconsInSectorDetectedObservable.Subscribe((objectDetected) =>
             {
-                this.OnObjectDetected(objectDetected.Type, objectDetected.Id);
+                this.OnObjectDetected(objectDetected);
             });
         }
         
