@@ -55,7 +55,7 @@ public class SectorScanner :  ProximityScanner<ObjectDetected>
     // varios sectores de una sola vez.
     protected override IDisposable Subscribe(IObserver<ObjectDetected> observer)
     {
-        if (sectorScanners == null)
+        if (beaconsInSectorDetectedObservable == null)
         {
             List<BeaconScanner> scanners = new List<BeaconScanner>();
             foreach(Sector sector in this.implementation.Sectors)
